@@ -1,69 +1,104 @@
-# React + TypeScript + Vite
+# Library Management System - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern Next.js frontend for a library management system with a clean, responsive design.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Books Management**: Add, view, and manage library books
+- **Members Management**: Manage library members and their information
+- **Loans Tracking**: Track book loans and returns
+- **Reservations**: Handle book reservations
+- **Reports**: View loan statistics and overdue reports
+- **Responsive Design**: Works on desktop and mobile devices
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Next.js 15**: React framework with App Router
+- **React 19**: Latest React with hooks
+- **TypeScript**: Type-safe development
+- **Tailwind CSS 4**: Utility-first CSS framework
+- **Axios**: HTTP client for API calls
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Project Structure
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+library-frontend/
+├── app/                    # App Router pages & layouts
+│   ├── layout.tsx         # Root layout
+│   ├── page.tsx           # Dashboard
+│   ├── login/page.tsx     # Login page
+│   ├── books/             # Books management
+│   ├── members/           # Members management
+│   ├── loans/             # Loans tracking
+│   ├── reservations/      # Reservations
+│   ├── reports/           # Reports
+│   └── not-found.tsx     # 404 page
+├── components/            # Reusable components
+├── lib/                   # Utilities & helpers
+├── styles/                # Global styles
+└── public/               # Static assets
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Getting Started
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. **Run the development server**:
+   ```bash
+   npm run dev
+   ```
+
+3. **Open your browser** and navigate to `http://localhost:3000`
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+
+## Pages Overview
+
+- **Dashboard** (`/`): Overview with navigation cards
+- **Books** (`/books`): List and manage books
+- **Book Details** (`/books/[id]`): View individual book details
+- **Add Book** (`/books/add`): Add new books to the library
+- **Members** (`/members`): List and manage library members
+- **Add Member** (`/members/add`): Register new members
+- **Loans** (`/loans`): Track book loans
+- **Add Loan** (`/loans/add`): Create new loans
+- **Reservations** (`/reservations`): Manage book reservations
+- **Reports** (`/reports/loans`, `/reports/overdue`): View library statistics
+
+## Components
+
+- `Navbar`: Navigation component
+- `Loader`: Loading spinner
+- `BookCard`: Book display card
+- `MemberCard`: Member display card
+- `LoanCard`: Loan display card
+
+## Utilities
+
+- `api.ts`: Axios configuration and interceptors
+- `auth.ts`: Authentication utilities
+- `utils.ts`: Common helper functions
+
+## Environment Variables
+
+Create a `.env.local` file in the root directory:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000/api
 ```
+
+## Development Notes
+
+- This is a frontend-only implementation with sample data
+- In a real application, you would connect to a backend API
+- Authentication is simulated for demonstration purposes
+- All forms include basic validation and error handling
+- The design is responsive and follows modern UI/UX practices
