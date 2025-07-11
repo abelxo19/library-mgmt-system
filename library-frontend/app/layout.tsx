@@ -1,38 +1,23 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import '../styles/globals.css'
-import Navbar from '../components/Navbar'
-import { ThemeProvider } from '../components/theme-provider'
-
-const inter = Inter({ subsets: ['latin'] })
+import '../styles/globals.css';
+import { ReactNode } from 'react';
+import { Metadata } from 'next';
+import AuthGate from '../components/AuthGate';
+import Navbar from '../components/Navbar';
 
 export const metadata: Metadata = {
   title: 'Library Management System',
-  description: 'A modern library management system',
+  description: 'A simple library management system',
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} min-h-screen bg-background font-sans antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="relative flex min-h-screen flex-col mx-auto px-10 py-5">
-            <Navbar />
-            <main className="flex-1">
-              {children}
-            </main>
-          </div>
-        </ThemeProvider>
+    <html lang="en">
+      <body className='px-10'>
+        <AuthGate>
+          <Navbar />
+          {children}
+        </AuthGate>
       </body>
     </html>
-  )
+  );
 }

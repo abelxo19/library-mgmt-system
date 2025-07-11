@@ -36,3 +36,26 @@ api.interceptors.response.use(
 )
 
 export default api 
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+export async function login(username: string, password: string) {
+  const res = await fetch(`${API_URL}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password }),
+  });
+  if (!res.ok) throw new Error('Login failed');
+  return res.json(); // { token, ... }
+}
+
+export async function fetchWithAuth(endpoint: string, token: string, options: RequestInit = {}) {
+  return fetch(`${API_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+} 

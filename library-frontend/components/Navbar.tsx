@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { motion } from 'framer-motion'
 import { Button } from './ui/button'
 import { ModeToggle } from './mode-toggle'
 
@@ -27,15 +28,18 @@ export default function Navbar() {
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
             {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`transition-colors hover:text-foreground/80 ${
-                  pathname === item.href ? 'text-foreground' : 'text-foreground/60'
-                }`}
-              >
-                {item.label}
-              </Link>
+              <motion.div key={item.href} whileHover={{ scale: 1.1 }}>
+                <Link
+                  href={item.href}
+                  className={`transition-colors hover:text-foreground/80 ${
+                    pathname === item.href
+                      ? 'text-foreground'
+                      : 'text-foreground/60'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              </motion.div>
             ))}
           </nav>
         </div>
@@ -50,4 +54,4 @@ export default function Navbar() {
       </div>
     </header>
   )
-} 
+}

@@ -1,17 +1,36 @@
+"use client";
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Plus, BookOpen } from 'lucide-react'
-
-// Sample data
-const books = [
-  { id: 1, title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', isbn: '978-0743273565', status: 'Available' },
-  { id: 2, title: 'To Kill a Mockingbird', author: 'Harper Lee', isbn: '978-0446310789', status: 'Borrowed' },
-  { id: 3, title: '1984', author: 'George Orwell', isbn: '978-0451524935', status: 'Available' },
-]
+import { useEffect, useState } from 'react';
+import { getBooks } from '../../lib/bookService';
+import { useAuth } from '../../lib/useAuth';
 
 export default function BookList() {
+  const { token } = useAuth();
+  const [books, setBooks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!token) return;
+    setLoading(true);
+    getBooks(token)
+      .then(data => {
+        setBooks(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError('Failed to load books');
+        setLoading(false);
+      });
+  }, [token]);
+
+  if (loading) return <div className="container mx-auto px-4 py-8">Loading...</div>;
+  if (error) return <div className="container mx-auto px-4 py-8 text-red-600">{error}</div>;
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
@@ -28,10 +47,9 @@ export default function BookList() {
           </Link>
         </Button>
       </div>
-      
       <div className="grid gap-6">
         {books.map((book) => (
-          <Card key={book.id} className="hover:shadow-md transition-shadow">
+          <Card key={book._id} className="hover:shadow-md transition-shadow">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
@@ -53,7 +71,7 @@ export default function BookList() {
                 </p>
                 <div className="flex justify-end pt-2">
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/books/${book.id}`}>
+                    <Link href={`/books/${book._id}`}>
                       View Details
                     </Link>
                   </Button>
