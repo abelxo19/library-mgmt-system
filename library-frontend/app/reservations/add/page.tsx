@@ -1,22 +1,56 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { createReservation } from '../../../lib/reservationService';
+import { getBooks } from '../../../lib/bookService';
+import { getMembers } from '../../../lib/memberService';
+import { useAuth } from '../../../lib/useAuth';
 
 export default function AddReservation() {
+  const { token } = useAuth();
+  const router = useRouter();
   const [formData, setFormData] = useState({
     bookId: '',
     memberId: '',
     reserveDate: ''
-  })
-  const router = useRouter()
+  });
+  const [books, setBooks] = useState<any[]>([]);
+  const [members, setMembers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // In real app, you'd call API to create reservation
-    console.log('Creating reservation:', formData)
-    router.push('/reservations')
+  useEffect(() => {
+    if (!token) return;
+    
+    // Fetch books and members for dropdowns
+    Promise.all([
+      getBooks(token),
+      getMembers(token)
+    ]).then(([booksData, membersData]) => {
+      setBooks(booksData);
+      setMembers(membersData);
+    }).catch(() => {
+      setError('Failed to load books or members');
+    });
+  }, [token]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token) return;
+    
+    setLoading(true);
+    setError('');
+    
+    try {
+      await createReservation(token, formData);
+      router.push('/reservations');
+    } catch (err) {
+      setError('Failed to create reservation');
+    } finally {
+      setLoading(false);
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -37,6 +71,12 @@ export default function AddReservation() {
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">Create New Reservation</h1>
         
+        {error && (
+          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -52,9 +92,11 @@ export default function AddReservation() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="">Select a book</option>
-                <option value="1">The Great Gatsby</option>
-                <option value="2">To Kill a Mockingbird</option>
-                <option value="3">1984</option>
+                {books.map((book) => (
+                  <option key={book._id} value={book._id}>
+                    {book.title} by {book.author}
+                  </option>
+                ))}
               </select>
             </div>
             
@@ -71,9 +113,11 @@ export default function AddReservation() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="">Select a member</option>
-                <option value="1">John Doe</option>
-                <option value="2">Jane Smith</option>
-                <option value="3">Bob Johnson</option>
+                {members.map((member) => (
+                  <option key={member._id} value={member._id}>
+                    {member.name} ({member.email})
+                  </option>
+                ))}
               </select>
             </div>
             
@@ -96,9 +140,10 @@ export default function AddReservation() {
           <div className="mt-8 flex gap-4">
             <button
               type="submit"
-              className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+              disabled={loading}
+              className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50"
             >
-              Create Reservation
+              {loading ? 'Creating...' : 'Create Reservation'}
             </button>
             <Link
               href="/reservations"

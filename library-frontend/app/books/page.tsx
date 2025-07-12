@@ -7,10 +7,21 @@ import { Plus, BookOpen } from 'lucide-react'
 import { useEffect, useState } from 'react';
 import { getBooks } from '../../lib/bookService';
 import { useAuth } from '../../lib/useAuth';
+import Loader from '../../components/Loader';
+
+interface Book {
+  _id: string;
+  title: string;
+  author: string;
+  isbn: string;
+  status: string;
+  description?: string;
+  genre?: string;
+}
 
 export default function BookList() {
   const { token } = useAuth();
-  const [books, setBooks] = useState<any[]>([]);
+  const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -28,8 +39,14 @@ export default function BookList() {
       });
   }, [token]);
 
-  if (loading) return <div className="container mx-auto px-4 py-8">Loading...</div>;
-  if (error) return <div className="container mx-auto px-4 py-8 text-red-600">{error}</div>;
+  if (loading) return <Loader message="Loading books..." />;
+  if (error) return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <p className="text-red-600 font-medium">{error}</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="container mx-auto px-4 py-8">

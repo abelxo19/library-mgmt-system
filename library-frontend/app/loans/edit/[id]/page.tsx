@@ -1,16 +1,19 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
-import { createLoan } from '../../../lib/loanService';
-import { getBooks } from '../../../lib/bookService';
-import { getMembers } from '../../../lib/memberService';
-import { useAuth } from '../../../lib/useAuth';
+import { getLoan, updateLoan } from '../../../../lib/loanService';
+import { getBooks } from '../../../../lib/bookService';
+import { getMembers } from '../../../../lib/memberService';
+import { useAuth } from '../../../../lib/useAuth';
 
-export default function AddLoan() {
+export default function EditLoan() {
   const { token } = useAuth();
   const router = useRouter();
+  const params = useParams();
+  const loanId = params.id as string;
+  
   const [formData, setFormData] = useState({
     bookId: '',
     memberId: '',
@@ -20,22 +23,37 @@ export default function AddLoan() {
   const [books, setBooks] = useState<any[]>([]);
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!token) return;
+    if (!token || !loanId) return;
     
-    // Fetch books and members for dropdowns
+    // Fetch loan data and populate form
     Promise.all([
+      getLoan(token, loanId),
       getBooks(token),
       getMembers(token)
-    ]).then(([booksData, membersData]) => {
+    ]).then(([loanData, booksData, membersData]) => {
       setBooks(booksData);
       setMembers(membersData);
+      
+      // Format dates for input fields
+      const borrowDate = new Date(loanData.borrowDate).toISOString().split('T')[0];
+      const dueDate = new Date(loanData.dueDate).toISOString().split('T')[0];
+      
+      setFormData({
+        bookId: loanData.book?._id || loanData.bookId || '',
+        memberId: loanData.member?._id || loanData.memberId || '',
+        borrowDate,
+        dueDate
+      });
+      setInitialLoading(false);
     }).catch(() => {
-      setError('Failed to load books or members');
+      setError('Failed to load loan data');
+      setInitialLoading(false);
     });
-  }, [token]);
+  }, [token, loanId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,10 +63,10 @@ export default function AddLoan() {
     setError('');
     
     try {
-      await createLoan(token, formData);
+      await updateLoan(token, loanId, formData);
       router.push('/loans');
     } catch (err) {
-      setError('Failed to create loan');
+      setError('Failed to update loan');
     } finally {
       setLoading(false);
     }
@@ -61,6 +79,9 @@ export default function AddLoan() {
     })
   }
 
+  if (initialLoading) return <div className="container mx-auto px-4 py-8">Loading...</div>;
+  if (error) return <div className="container mx-auto px-4 py-8 text-red-600">{error}</div>;
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
@@ -70,7 +91,7 @@ export default function AddLoan() {
       </div>
       
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Create New Loan</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">Edit Loan</h1>
         
         {error && (
           <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
@@ -159,7 +180,7 @@ export default function AddLoan() {
               disabled={loading}
               className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50"
             >
-              {loading ? 'Creating...' : 'Create Loan'}
+              {loading ? 'Updating...' : 'Update Loan'}
             </button>
             <Link
               href="/loans"

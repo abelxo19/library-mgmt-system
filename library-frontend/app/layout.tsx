@@ -12,9 +12,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className='px-10'>
+      <body className='mx-24'>
         <AuthGate>
-          <Navbar />
+          <Navbar/>
           {children}
         </AuthGate>
       </body>

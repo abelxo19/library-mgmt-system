@@ -3,10 +3,19 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../lib/useAuth";
 import { getMembers, deleteMember } from "../../lib/memberService";
+import Loader from "../../components/Loader";
+
+interface Member {
+  _id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  status?: string;
+}
 
 export default function MemberList() {
   const { token } = useAuth();
-  const [members, setMembers] = useState<any[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -43,8 +52,14 @@ export default function MemberList() {
     }
   };
 
-  if (loading) return <div className="container mx-auto px-4 py-8">Loading...</div>;
-  if (error) return <div className="container mx-auto px-4 py-8 text-red-600">{error}</div>;
+  if (loading) return <Loader message="Loading members..." />;
+  if (error) return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <p className="text-red-600 font-medium">{error}</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="container mx-auto px-4 py-8">
